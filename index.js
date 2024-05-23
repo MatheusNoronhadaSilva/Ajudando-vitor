@@ -1,5 +1,11 @@
 'use strict';
 
+console.log('jdkjskjdksjkdjskjdskj');
+const modalClose = document.getElementById('modalClose')
+const cancelar = document.getElementById('cancelar')
+const campo = document.getElementById('campo')
+const modal = document.getElementById('modal')
+
 const createRow = (client) => {
     const newRow = document.createElement('tr')
 
@@ -14,8 +20,8 @@ const createRow = (client) => {
     const celular = document.createElement('td')
     celular.textContent = client.celular
 
-    const cidade = document.createElement('td')
-    cidade.textContent = client.cidade
+    const endereco = document.createElement('td')
+    endereco.textContent = client.endereco
 
     const tdEditarExcluir = document.createElement('td')
 
@@ -29,49 +35,111 @@ const createRow = (client) => {
 
     btnExcluir.addEventListener('click', function(){
 
-        deletarContao(client.id)
+        deletarContato(client.id)
     })
 
-    newRow.replaceChildren(nome, email, celular, cidade, tdEditarExcluir)
+    btnEditar.addEventListener('click', function(){
+
+        const salvarEdicao = document.getElementById('salvar')
+
+        salvarEdicao.addEventListener('click', function(){
+            console.log('oioioioiiooi');
+        
+        const nome = document.getElementById('nome').value
+        const email = document.getElementById('email').value
+        const celular = document.getElementById('celular').value
+        const endereco = document.getElementById('endereco').value
+    
+        const ContatoJSON = {
+            nome: nome,
+            email: email,
+            celular: celular,
+            endereco: endereco
+        }
+    
+        console.log(ContatoJSON);
+    
+        editarContato(ContatoJSON, client.id)
+
+        window.location.reload()
+
+        })
+        aparecer()
+    })
+
+    newRow.replaceChildren(nome, email, celular, endereco, tdEditarExcluir)
     tdEditarExcluir.replaceChildren(btnEditar, btnExcluir)
 
 
-    // newRow.innerHTML = `
-    //     <td>${client.nome}</td>
-    //     <td>${client.email}</td>
-    //     <td>${client.celular}</td>
-    //     <td>${client.cidade}</td>
-    //     <td>
-    //         <button type="button" class="button green" id="edit-${index}">Editar</button>
-    //         <button type="button" class="button red" id="delete-${index}" >Excluir</button>
-    //     </td>
-    // `
     document.querySelector('#tableClient>tbody').appendChild(newRow)
 }
 
-document.getElementById('cadastrarCliente').addEventListener('click', function(){
-    novoContato()
-})
+const btncadastrar = document.getElementById('cadastrarCliente')
 
-async function novoContato() {
+function aparecer(){
 
-    // const nome = document.getElementById('nome').value
-    // const email = document.getElementById('email').value
-    // const celular = document.getElementById('celular').value
-    // const cidade = document.getElementById('cidade').value
+    modal.classList.remove('baixo')
+    modal.classList.add('cima')
 
-    const novoContatoJSON = {
-        nome: "teste",
-        email: "teste@teste",
-        celular: "teste",
-        cidade: "teste",
+    campo.classList.remove('hidden')
+    campo.classList.add('visivel')
+}
+
+function desaparecer(){
+
+    modal.classList.remove('cima')
+    modal.classList.add('baixo')
+
+    campo.classList.remove('visivel')
+    campo.classList.add('hidden')
+}
+
+btncadastrar.addEventListener('click', function(){
+    console.log('uiiuii');
+
+    const salvar = document.getElementById('salvar')
+
+    salvar.addEventListener('click', function(){
+
+        console.log('ssssssssssssssssssssssss');
+
+        const nome = document.getElementById('nome').value
+        const email = document.getElementById('email').value
+        const celular = document.getElementById('celular').value
+        const endereco = document.getElementById('endereco').value
+    
+        const novoContatoJSON = {
+            nome: nome,
+            email: email,
+            celular: celular,
+            endereco: endereco
         }
-
-    await postarCliente(novoContatoJSON)
-
+    
+        console.log(novoContatoJSON);
+    
+        postarCliente(novoContatoJSON)
+    
+        desaparecer()
     
     window.location.reload()
-}
+    
+    })
+    
+
+    aparecer()
+
+})
+
+modalClose.addEventListener('click', function(){
+
+    desaparecer()
+})
+
+cancelar.addEventListener('click', function(){
+
+    desaparecer()
+})
+
 
 async function pegarContatos() {
         const endpoint = 'http://localhost:8080/contatos';
@@ -81,10 +149,33 @@ async function pegarContatos() {
         return listApi;
     }
 
+async function editarContato(editaContato, id){
+
+        console.log('postando');
+
+        console.log(editaContato);
+        console.log(id);
+        const endpoint = `http://localhost:8080/contatos/${id}`
+    
+        const options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(editaContato)
+        };
+    
+        try {
+            const response = await fetch(endpoint, options);
+            return response.ok
+        } catch (error) {
+            
+    }
+}
+
 async function postarCliente(novoCliente){
 
     console.log('enviando');
-
     const endpoint = 'http://localhost:8080/contatos'
 
     const options = {
@@ -103,7 +194,7 @@ async function postarCliente(novoCliente){
     }
 }
 
-async function deletarContao(id){
+async function deletarContato(id){
 
 
     const endpoint = `http://localhost:8080/contatos/${id}`
@@ -123,6 +214,7 @@ try {
 
 window.location.reload()
 }
+
 
 async function verificarContatos() {
 
